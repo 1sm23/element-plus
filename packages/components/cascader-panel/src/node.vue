@@ -20,7 +20,7 @@
   >
     <!-- prefix -->
     <el-checkbox
-      v-if="multiple"
+      v-if="multiple && !(hideCheckbox && node.uid.substring(0, 1) === '0')"
       :model-value="node.checked"
       :indeterminate="node.indeterminate"
       :disabled="isDisabled"
@@ -64,19 +64,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject } from 'vue'
-import ElCheckbox from '@element-plus/components/checkbox'
-import ElRadio from '@element-plus/components/radio'
-import ElIcon from '@element-plus/components/icon'
-import { Check, Loading, ArrowRight } from '@element-plus/icons-vue'
-import NodeContent from './node-content'
-import { CASCADER_PANEL_INJECTION_KEY } from './types'
-import type { default as CascaderNode } from './node'
+import { computed, defineComponent, inject } from "vue";
+import ElCheckbox from "@element-plus/components/checkbox";
+import ElRadio from "@element-plus/components/radio";
+import ElIcon from "@element-plus/components/icon";
+import { Check, Loading, ArrowRight } from "@element-plus/icons-vue";
+import NodeContent from "./node-content";
+import { CASCADER_PANEL_INJECTION_KEY } from "./types";
+import type { default as CascaderNode } from "./node";
 
-import type { PropType } from 'vue'
+import type { PropType } from "vue";
 
 export default defineComponent({
-  name: 'ElCascaderNode',
+  name: "ElCascaderNode",
 
   components: {
     ElCheckbox,
@@ -96,63 +96,64 @@ export default defineComponent({
     menuId: String,
   },
 
-  emits: ['expand'],
+  emits: ["expand"],
 
   setup(props, { emit }) {
-    const panel = inject(CASCADER_PANEL_INJECTION_KEY)!
+    const panel = inject(CASCADER_PANEL_INJECTION_KEY)!;
 
-    const isHoverMenu = computed(() => panel.isHoverMenu)
-    const multiple = computed(() => panel.config.multiple)
-    const checkStrictly = computed(() => panel.config.checkStrictly)
-    const checkedNodeId = computed(() => panel.checkedNodes[0]?.uid)
-    const isDisabled = computed(() => props.node.isDisabled)
-    const isLeaf = computed(() => props.node.isLeaf)
+    const isHoverMenu = computed(() => panel.isHoverMenu);
+    const multiple = computed(() => panel.config.multiple);
+    const hideCheckbox = computed(() => panel.config.hideCheckbox);
+    const checkStrictly = computed(() => panel.config.checkStrictly);
+    const checkedNodeId = computed(() => panel.checkedNodes[0]?.uid);
+    const isDisabled = computed(() => props.node.isDisabled);
+    const isLeaf = computed(() => props.node.isLeaf);
     const expandable = computed(
       () => (checkStrictly.value && !isLeaf.value) || !isDisabled.value
-    )
-    const inExpandingPath = computed(() => isInPath(panel.expandingNode!))
+    );
+    const inExpandingPath = computed(() => isInPath(panel.expandingNode!));
     // only useful in check-strictly mode
     const inCheckedPath = computed(
       () => checkStrictly.value && panel.checkedNodes.some(isInPath)
-    )
+    );
 
     const isInPath = (node: CascaderNode) => {
-      const { level, uid } = props.node
-      return node?.pathNodes[level - 1]?.uid === uid
-    }
+      const { level, uid } = props.node;
+      return node?.pathNodes[level - 1]?.uid === uid;
+    };
 
     const doExpand = () => {
-      if (inExpandingPath.value) return
-      panel.expandNode(props.node)
-    }
+      if (inExpandingPath.value) return;
+      panel.expandNode(props.node);
+    };
 
     const doCheck = (checked: boolean) => {
-      const { node } = props
-      if (checked === node.checked) return
-      panel.handleCheckChange(node, checked)
-    }
+      const { node } = props;
+      if (checked === node.checked) return;
+      panel.handleCheckChange(node, checked);
+    };
 
     const doLoad = () => {
       panel.lazyLoad(props.node, () => {
-        if (!isLeaf.value) doExpand()
-      })
-    }
+        if (!isLeaf.value) doExpand();
+      });
+    };
 
     const handleHoverExpand = (e: Event) => {
-      if (!isHoverMenu.value) return
-      handleExpand()
-      !isLeaf.value && emit('expand', e)
-    }
+      if (!isHoverMenu.value) return;
+      handleExpand();
+      !isLeaf.value && emit("expand", e);
+    };
 
     const handleExpand = () => {
-      const { node } = props
+      const { node } = props;
       // do not exclude leaf node because the menus expanded might have to reset
-      if (!expandable.value || node.loading) return
-      node.loaded ? doExpand() : doLoad()
-    }
+      if (!expandable.value || node.loading) return;
+      node.loaded ? doExpand() : doLoad();
+    };
 
     const handleClick = () => {
-      if (isHoverMenu.value && !isLeaf.value) return
+      if (isHoverMenu.value && !isLeaf.value) return;
 
       if (
         isLeaf.value &&
@@ -160,20 +161,20 @@ export default defineComponent({
         !checkStrictly.value &&
         !multiple.value
       ) {
-        handleCheck(true)
+        handleCheck(true);
       } else {
-        handleExpand()
+        handleExpand();
       }
-    }
+    };
 
     const handleCheck = (checked: boolean) => {
       if (!props.node.loaded) {
-        doLoad()
+        doLoad();
       } else {
-        doCheck(checked)
-        !checkStrictly.value && doExpand()
+        doCheck(checked);
+        !checkStrictly.value && doExpand();
       }
-    }
+    };
 
     return {
       panel,
@@ -190,7 +191,7 @@ export default defineComponent({
       handleExpand,
       handleClick,
       handleCheck,
-    }
+    };
   },
-})
+});
 </script>

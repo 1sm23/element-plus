@@ -25,6 +25,7 @@ export const CommonProps = {
 export const DefaultProps: CascaderConfig = {
   expandTrigger: ExpandTrigger.CLICK,
   multiple: false,
+  hideCheckbox: false,
   checkStrictly: false, // whether all nodes can be selected
   emitPath: true, // wether to emit an array of all levels value in which node is located
   lazy: false,

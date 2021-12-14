@@ -32,6 +32,7 @@ export interface CascaderOption extends Record<string, unknown> {
 export interface CascaderProps {
   expandTrigger?: ExpandTrigger
   multiple?: boolean
+  hideCheckbox?: boolean
   checkStrictly?: boolean
   emitPath?: boolean
   lazy?: boolean
